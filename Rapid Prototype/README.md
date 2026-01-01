@@ -546,7 +546,7 @@ Dieses Projekt ist lizenziert unter der MIT License - siehe [LICENSE](LICENSE) f
 
 ## 👥 Authors
 
-- **Cemil** - Initial work
+- **R.Hanasoglu, H.Duman & K.Nauta** - Initial work
 
 ## 🙏 Acknowledgments
 
