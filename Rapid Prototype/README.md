@@ -1,4 +1,4 @@
-# 🍾 Bottle Recycling Backend API (Color-Based)
+#  ReSort Backend API (Color-Based)
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688.svg?style=flat&logo=FastAPI)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB.svg?style=flat&logo=python)](https://www.python.org)
@@ -8,36 +8,36 @@
 
 Backend API für **farb-basierte Flaschenidentifikation** und Recycling-Informationen. Erkennt Flaschen anhand ihrer Farbe (grün, braun, transparent) und liefert detaillierte Recycling-Anweisungen inklusive Pfandbeträgen.
 
-## ✨ Features
+##  Features
 
-- 🎨 **Farb-basierte Klassifizierung** - Keine ML-Modelle, nur OpenCV
-- 🎯 **ROI (Region of Interest)** Support - Fokussiere auf relevante Bildbereiche
-- ⚡ **Schnell** - Startup <5s, Analyse 50-150ms
-- 📦 **Leichtgewichtig** - Docker Image ~700MB (statt 1.2GB)
-- 🔄 **RESTful API** - Vollständig dokumentiert mit OpenAPI/Swagger
-- 💾 **MongoDB** - Persistente Speicherung von Recycling-Daten
-- 🌍 **CORS Support** - Frontend-Integration ready
-- 🐳 **Docker Ready** - Ein Befehl zum Starten
+-  **Farb-basierte Klassifizierung** - Keine ML-Modelle, nur OpenCV
+-  **ROI (Region of Interest)** Support - Fokussiere auf relevante Bildbereiche
+-  **Schnell** - Startup <5s, Analyse 50-150ms
+-  **Leichtgewichtig** - Docker Image ~700MB (statt 1.2GB)
+-  **RESTful API** - Vollständig dokumentiert mit OpenAPI/Swagger
+-  **MongoDB** - Persistente Speicherung von Recycling-Daten
+-  **CORS Support** - Frontend-Integration ready
+-  **Docker Ready** - Ein Befehl zum Starten
 
-## 🎯 Erkannte Flaschentypen
+##  Erkannte Flaschentypen
 
 | Typ | Farberkennung | Pfand | Entsorgung |
 |-----|---------------|-------|------------|
-| 🟢 **Glasflasche Grün** | Hue 28-90°, Sättigung >20% | 0.08€ | Grüner Container |
-| 🟤 **Glasflasche Braun** | Hue 5-35° oder >155°, dunkel | 0.08€ | Brauner Container |
-| ⚪ **Glasflasche Weiß** | Niedrige Sättigung, mittel | 0.08€ | Weißer Container |
-| 💧 **PET-Flasche** | Sehr hell, transparent | 0.25€ | Gelber Sack |
-| 🥫 **Aluminium-Dose** | Metallic, glänzend | 0.25€ | Gelber Sack |
-| 🍺 **Mehrweg-Glas** | Mittlere Helligkeit | 0.15€ | Supermarkt |
+|  **Glasflasche Grün** | Hue 28-90°, Sättigung >20% | 0.08€ | Grüner Container |
+|  **Glasflasche Braun** | Hue 5-35° oder >155°, dunkel | 0.08€ | Brauner Container |
+|  **Glasflasche Weiß** | Niedrige Sättigung, mittel | 0.08€ | Weißer Container |
+|  **PET-Flasche** | Sehr hell, transparent | 0.25€ | Gelber Sack |
+|  **Aluminium-Dose** | Metallic, glänzend | 0.25€ | Gelber Sack |
+|  **Mehrweg-Glas** | Mittlere Helligkeit | 0.15€ | Supermarkt |
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Mit Docker (Empfohlen)
 
 ```bash
 # Repository klonen
 git clone <repository-url>
-cd bottle-recycling-backend
+cd reSort-backend
 
 # Starten
 docker-compose up -d
@@ -63,9 +63,9 @@ mongod
 python -m app.main
 ```
 
-## 📡 API Endpoints
+##  API Endpoints
 
-### 🏥 Health Check
+###  Health Check
 
 ```bash
 GET /health
@@ -81,7 +81,7 @@ GET /health
 }
 ```
 
-### 🔍 Bildanalyse
+###  Bildanalyse
 
 ```bash
 POST /api/v1/analyze
@@ -124,7 +124,7 @@ Parameters:
 }
 ```
 
-### ♻️ Recycling-Informationen
+###  Recycling-Informationen
 
 ```bash
 GET /api/v1/recycling-info/{bottle_type}
@@ -166,7 +166,7 @@ Bild (600x600):
 │  Hintergrund               │
 │         ┌──────┐           │
 │         │      │           │  ← ROI fokussiert
-│         │ 🍾   │           │     auf Flasche
+│         │      │           │     auf Flasche
 │         │      │           │
 │         └──────┘           │
 │  Hintergrund               │
@@ -175,7 +175,7 @@ Bild (600x600):
 
 **Siehe [ROI_DOCUMENTATION.md](ROI_DOCUMENTATION.md) für Details.**
 
-## 🧪 Testen
+##  Testen
 
 ### Mit Test-Script
 
@@ -210,7 +210,7 @@ curl -X POST -F "image=@bottle.jpg" \
 2. Teste Endpoints interaktiv
 3. Oder importiere Collection und teste manuell
 
-## ⚙️ Konfiguration
+##  Konfiguration
 
 ### Environment Variables
 
@@ -222,7 +222,7 @@ DEBUG=True
 
 # MongoDB
 MONGODB_URL=mongodb://localhost:27017
-MONGODB_DB_NAME=bottle_recycling
+MONGODB_DB_NAME=reSort
 
 # Color Analysis
 MIN_CONFIDENCE=0.5       # Mindest-Konfidenz (0.0-1.0)
@@ -261,7 +261,7 @@ services:
       - "27017:27017"
 ```
 
-## 📊 Performance
+##  Performance
 
 | Metrik | Wert |
 |--------|------|
@@ -271,7 +271,7 @@ services:
 | **Genauigkeit** | 70-80% |
 | **RAM Verbrauch** | ~200MB |
 
-## 🏗️ Architektur
+##  Architektur
 
 ```
 ┌─────────────┐
@@ -306,12 +306,12 @@ services:
         └──────────────┘
 ```
 
-## 🔧 Entwicklung
+##  Entwicklung
 
 ### Projekt-Struktur
 
 ```
-bottle-recycling-backend/
+reSort-backend/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                    # FastAPI App
@@ -362,11 +362,11 @@ docker run -d -p 27017:27017 mongo:4.4
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## 📈 Klassifizierungs-Algorithmus
+##  Klassifizierungs-Algorithmus
 
 ### Farbraum-Analyse
 
-1. **RGB → HSV Konvertierung**
+1. **RGB  HSV Konvertierung**
    - Hue (Farbton): 0-360°
    - Saturation (Sättigung): 0-100%
    - Value (Helligkeit): 0-255
@@ -399,7 +399,7 @@ Faktoren:
 - Farbvarianz
 - Hue-Übereinstimmung
 
-## 🆚 Vergleich: Color-Based vs ML-Based
+##  Vergleich: Color-Based vs ML-Based
 
 | Feature | Color-Based (v2.0) | ML-Based (v1.0) |
 |---------|-------------------|-----------------|
@@ -415,7 +415,7 @@ Faktoren:
 
 **Siehe [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) für Details.**
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Flasche wird nicht erkannt
 
@@ -448,15 +448,15 @@ docker-compose build --no-cache
 docker-compose up -d
 ```
 
-## 🤝 Best Practices
+##  Best Practices
 
 ### Für beste Ergebnisse
 
-✅ **Gute Beleuchtung** - Tageslicht oder gleichmäßig
-✅ **Sauberer Hintergrund** - Einfarbig, weiß/grau
-✅ **ROI nutzen** - Fokus auf Flasche
-✅ **Zentrieren** - Flasche in Bildmitte
-✅ **Scharf** - Keine Bewegungsunschärfe
+ **Gute Beleuchtung** - Tageslicht oder gleichmäßig
+ **Sauberer Hintergrund** - Einfarbig, weiß/grau
+ **ROI nutzen** - Fokus auf Flasche
+ **Zentrieren** - Flasche in Bildmitte
+ **Scharf** - Keine Bewegungsunschärfe
 
 ### ROI Konfiguration
 
@@ -476,19 +476,19 @@ ROI_WIDTH_PERCENT=0.3
 ROI_HEIGHT_PERCENT=0.4
 ```
 
-## 📚 Dokumentation
+##  Dokumentation
 
 - **[README.md](README.md)** - Hauptdokumentation (diese Datei)
 - **[ROI_DOCUMENTATION.md](ROI_DOCUMENTATION.md)** - ROI im Detail
 - **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - Von ML zu Color-Based
 - **[API Docs](http://localhost:8000/docs)** - Swagger UI (wenn Server läuft)
 
-## 🚢 Deployment
+##  Deployment
 
 ### Heroku
 
 ```bash
-heroku create bottle-recycling-api
+heroku create reSort-api
 heroku addons:create mongolab
 git push heroku main
 ```
@@ -500,26 +500,26 @@ git push heroku main
 aws ecr get-login-password | docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com
 
 # Build & Push
-docker build -t bottle-recycling-api .
-docker tag bottle-recycling-api:latest <account>.dkr.ecr.<region>.amazonaws.com/bottle-recycling-api:latest
-docker push <account>.dkr.ecr.<region>.amazonaws.com/bottle-recycling-api:latest
+docker build -t reSort-api .
+docker tag reSort-api:latest <account>.dkr.ecr.<region>.amazonaws.com/reSort-api:latest
+docker push <account>.dkr.ecr.<region>.amazonaws.com/reSort-api:latest
 ```
 
 ### Docker Swarm
 
 ```bash
-docker stack deploy -c docker-compose.yml bottle-recycling
+docker stack deploy -c docker-compose.yml reSort
 ```
 
-## 🔒 Security
+##  Security
 
-- 🔐 CORS konfiguriert
-- 📏 File Size Limits (10MB)
-- 🛡️ Input Validation (Pydantic)
-- 🚫 Keine Secrets im Code
-- 🔒 Environment Variables für Config
+-  CORS konfiguriert
+-  File Size Limits (10MB)
+-  Input Validation (Pydantic)
+-  Keine Secrets im Code
+-  Environment Variables für Config
 
-## 📝 Roadmap
+##  Roadmap
 
 - [ ] Custom Klassifizierungs-Regeln per API
 - [ ] Batch Processing für mehrere Bilder
@@ -530,7 +530,7 @@ docker stack deploy -c docker-compose.yml bottle-recycling
 - [ ] Prometheus Metrics
 - [ ] Rate Limiting
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions sind willkommen! Bitte:
 
@@ -540,29 +540,27 @@ Contributions sind willkommen! Bitte:
 4. Push zum Branch (`git push origin feature/AmazingFeature`)
 5. Öffne einen Pull Request
 
-## 📄 License
+##  License
 
 Dieses Projekt ist lizenziert unter der MIT License - siehe [LICENSE](LICENSE) für Details.
 
-## 👥 Authors
+##  Authors
 
 - **R.Hanasoglu, H.Duman & K.Nauta** - Initial work
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - FastAPI für das großartige Framework
 - OpenCV für Computer Vision Tools
 - MongoDB für die Datenbank
 - Docker für Containerisierung
 
-## 📞 Support
+##  Support
 
 Bei Fragen oder Problemen:
 
-1. 📖 Prüfe die [Dokumentation](README.md)
-2. 🐛 Öffne ein [Issue](https://github.com/.../issues)
-3. 💬 Diskutiere in [Discussions](https://github.com/.../discussions)
+1.  Prüfe die [Dokumentation](README.md)
+2.  Öffne ein [Issue](https://github.com/.../issues)
+3.  Diskutiere in [Discussions](https://github.com/.../discussions)
 
----
 
-**Made with ❤️ and 🎨 Color Analysis**
