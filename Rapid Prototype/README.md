@@ -138,7 +138,7 @@ Verfügbare Typen:
 - `Aluminium_Dose`
 - `Mehrweg_Glas`
 
-## 🎨 ROI (Region of Interest)
+##  ROI (Region of Interest)
 
 Die ROI ermöglicht es, nur einen bestimmten Bildbereich zu analysieren - ideal um Hintergründe auszublenden.
 
