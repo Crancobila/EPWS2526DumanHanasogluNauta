@@ -204,11 +204,7 @@ curl -X POST -F "image=@bottle.jpg" \
   "http://localhost:8000/api/v1/analyze?roi_x_percent=0.38&roi_y_percent=0.40&roi_width_percent=0.24&roi_height_percent=0.30"
 ```
 
-### Mit Postman
 
-1. Öffne http://localhost:8000/docs (Swagger UI)
-2. Teste Endpoints interaktiv
-3. Oder importiere Collection und teste manuell
 
 ##  Konfiguration
 
@@ -530,37 +526,9 @@ docker stack deploy -c docker-compose.yml reSort
 - [ ] Prometheus Metrics
 - [ ] Rate Limiting
 
-##  Contributing
 
-Contributions sind willkommen! Bitte:
 
-1. Fork das Repository
-2. Erstelle einen Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit deine Änderungen (`git commit -m 'Add AmazingFeature'`)
-4. Push zum Branch (`git push origin feature/AmazingFeature`)
-5. Öffne einen Pull Request
 
-##  License
 
-Dieses Projekt ist lizenziert unter der MIT License - siehe [LICENSE](LICENSE) für Details.
-
-##  Authors
-
-- **R.Hanasoglu, H.Duman & K.Nauta** - Initial work
-
-##  Acknowledgments
-
-- FastAPI für das großartige Framework
-- OpenCV für Computer Vision Tools
-- MongoDB für die Datenbank
-- Docker für Containerisierung
-
-##  Support
-
-Bei Fragen oder Problemen:
-
-1.  Prüfe die [Dokumentation](README.md)
-2.  Öffne ein [Issue](https://github.com/.../issues)
-3.  Diskutiere in [Discussions](https://github.com/.../discussions)
 
 
