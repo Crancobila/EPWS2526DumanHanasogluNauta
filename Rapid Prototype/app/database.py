@@ -122,14 +122,7 @@ class DatabaseService:
                 "pfand": 0.08,
                 "environmental_impact": "Braunglas schützt den Inhalt vor Lichteinfluss und ist gut recyclebar."
             },
-            {
-                "bottle_type": "Aluminium_Dose",
-                "material": "Aluminium",
-                "recycling_category": "Gelber Sack / Gelbe Tonne",
-                "instructions": "Dose entleeren und in den Gelben Sack werfen. Pfanddosen zum Automaten bringen.",
-                "pfand": 0.25,
-                "environmental_impact": "Aluminium-Recycling spart bis zu 95% Energie im Vergleich zur Neuproduktion."
-            },
+
             {
                 "bottle_type": "Mehrweg_Glas",
                 "material": "Mehrweg-Glas",
