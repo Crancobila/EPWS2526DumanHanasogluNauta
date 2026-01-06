@@ -79,7 +79,7 @@ class HealthResponse(BaseModel):
     """Health Check Response"""
     status: str
     version: str
-    ml_model_loaded: bool  # Umbenannt um Konflikt zu vermeiden
+    analysis_ready: bool  # Color Analysis Service bereit
     database_connected: bool
 
     model_config = ConfigDict(

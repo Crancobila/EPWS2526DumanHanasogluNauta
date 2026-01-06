@@ -3,12 +3,12 @@ version: '3.8'
 services:
   api:
     build: .
-    container_name: bottle-recycling-api
+    container_name: resort-api
     ports:
       - "8000:8000"
     environment:
       - MONGODB_URL=mongodb://mongo:27017
-      - MONGODB_DB_NAME=bottle_recycling
+      - MONGODB_DB_NAME=resort
       - DEBUG=True
       - HOST=0.0.0.0
       - PORT=8000
@@ -27,23 +27,23 @@ services:
       - mongo
     restart: unless-stopped
     networks:
-      - bottle-network
+      - resort-network
 
   mongo:
     image: mongo:7.0
-    container_name: bottle-mongo
+    container_name: resort-mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
     networks:
-      - bottle-network
+      - resort-network
 
   # Optional: MongoDB Web Interface
   mongo-express:
     image: mongo-express:latest
-    container_name: bottle-mongo-express
+    container_name: resort-mongo-express
     ports:
       - "8081:8081"
     environment:
@@ -54,12 +54,12 @@ services:
       - mongo
     restart: unless-stopped
     networks:
-      - bottle-network
+      - resort-network
 
 volumes:
   mongo_data:
     driver: local
 
 networks:
-  bottle-network:
+  resort-network:
     driver: bridge

@@ -12,21 +12,25 @@ class Settings(BaseSettings):
     mongodb_url: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "bottle_recycling"
 
-    # Model - umbenannt um Namespace-Konflikt zu vermeiden
-    ml_model_path: str = "models/bottle_classifier.pt"
-    confidence_threshold: float = 0.5
+    # Image Analysis
+    min_confidence: float = 0.6  # Mindest-Konfidenz für Farberkennung
+    roi_enabled: bool = True  # ROI (Region of Interest) aktiviert
+    roi_x_percent: float = 0.25  # ROI startet bei 25% der Bildbreite
+    roi_y_percent: float = 0.20  # ROI startet bei 20% der Bildhöhe
+    roi_width_percent: float = 0.50  # ROI ist 50% der Bildbreite breit
+    roi_height_percent: float = 0.60  # ROI ist 60% der Bildhöhe hoch
 
     # Upload
     max_upload_size: int = 10485760  # 10MB
-    allowed_extensions: str = "jpg,jpeg,png,webp"  # Als String, wird gesplittet
+    allowed_extensions: str = "jpg,jpeg,png,webp"
 
     # CORS
-    cors_origins: str = "http://localhost:3000,http://localhost:19006,http://localhost:8081"  # Als String
+    cors_origins: str = "http://localhost:3000,http://localhost:19006,http://localhost:8081"
 
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False,
-        protected_namespaces=('settings_',)  # Erlaubt model_ prefix
+        extra='ignore'  # Ignoriert unbekannte Felder statt Fehler
     )
 
     def get_allowed_extensions(self) -> List[str]:

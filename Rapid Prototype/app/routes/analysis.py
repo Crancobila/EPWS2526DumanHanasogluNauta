@@ -1,6 +1,7 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Body
+from typing import Optional
 from app.models import AnalysisResponse, RecyclingInfo
-from app.ml_service import ml_service
+from app.color_analysis_service import color_service
 from app.database import db_service
 from app.config import settings
 import time
@@ -13,15 +14,23 @@ logger = logging.getLogger(__name__)
 
 @router.post("/analyze", response_model=AnalysisResponse, status_code=status.HTTP_200_OK)
 async def analyze_bottle(
-        image: UploadFile = File(..., description="Bild der zu analysierenden Flasche")
+        image: UploadFile = File(..., description="Bild der zu analysierenden Flasche"),
+        roi_x_percent: Optional[float] = None,
+        roi_y_percent: Optional[float] = None,
+        roi_width_percent: Optional[float] = None,
+        roi_height_percent: Optional[float] = None
 ):
     """
-    Analysiert ein hochgeladenes Bild und erkennt Flaschen mit Recycling-Informationen
+    Analysiert ein hochgeladenes Bild und klassifiziert die Flasche anhand von Farbwerten
 
     - **image**: Bilddatei (JPG, PNG, WEBP) - max 10MB
+    - **roi_x_percent**: Optional - ROI X-Start als Prozent der Bildbreite (0.0-1.0)
+    - **roi_y_percent**: Optional - ROI Y-Start als Prozent der Bildhöhe (0.0-1.0)
+    - **roi_width_percent**: Optional - ROI Breite als Prozent (0.0-1.0)
+    - **roi_height_percent**: Optional - ROI Höhe als Prozent (0.0-1.0)
 
     Returns:
-        AnalysisResponse mit erkannten Flaschen und Recycling-Informationen
+        AnalysisResponse mit erkannter Flasche und Recycling-Informationen
     """
     start_time = time.time()
 
@@ -49,17 +58,29 @@ async def analyze_bottle(
         )
 
     try:
+        # Optional: Custom ROI Konfiguration
+        roi_config = None
+        if any([roi_x_percent, roi_y_percent, roi_width_percent, roi_height_percent]):
+            roi_config = {}
+            if roi_x_percent is not None:
+                roi_config['x_percent'] = max(0.0, min(1.0, roi_x_percent))
+            if roi_y_percent is not None:
+                roi_config['y_percent'] = max(0.0, min(1.0, roi_y_percent))
+            if roi_width_percent is not None:
+                roi_config['width_percent'] = max(0.0, min(1.0, roi_width_percent))
+            if roi_height_percent is not None:
+                roi_config['height_percent'] = max(0.0, min(1.0, roi_height_percent))
+
+            logger.info(f"Verwende custom ROI: {roi_config}")
+
         # Bildanalyse durchführen
-        detections = await ml_service.analyze_image(contents)
+        detection = await color_service.analyze_image(contents, roi_config)
 
-        # Recycling-Informationen abrufen wenn Flaschen erkannt wurden
+        # Recycling-Informationen abrufen wenn Flasche erkannt wurde
         recycling_info = None
-        if detections:
-            # Nimm die Flasche mit höchster Konfidenz
-            primary_detection = max(detections, key=lambda d: d.confidence)
-
+        if detection:
             # Hole Recycling-Info aus Datenbank
-            info_data = await db_service.get_recycling_info(primary_detection.class_name)
+            info_data = await db_service.get_recycling_info(detection.class_name)
 
             if info_data:
                 recycling_info = RecyclingInfo(
@@ -74,21 +95,23 @@ async def analyze_bottle(
         processing_time = (time.time() - start_time) * 1000
 
         # Nachricht generieren
-        message = f"{len(detections)} Flasche(n) erkannt" if detections else "Keine Flaschen erkannt"
+        success = detection is not None
+        message = f"Flasche erkannt: {detection.class_name}" if success else "Keine Flasche erkannt (Konfidenz zu niedrig)"
 
         # Optional: Analyse in Datenbank speichern (für Statistiken)
-        analysis_data = {
-            "timestamp": datetime.utcnow(),
-            "detections_count": len(detections),
-            "detections": [d.model_dump() for d in detections],
-            "processing_time_ms": processing_time,
-            "file_size_bytes": len(contents)
-        }
-        await db_service.save_analysis(analysis_data)
+        if detection:
+            analysis_data = {
+                "timestamp": datetime.utcnow(),
+                "detection": detection.model_dump(),
+                "processing_time_ms": processing_time,
+                "file_size_bytes": len(contents),
+                "roi_used": roi_config is not None
+            }
+            await db_service.save_analysis(analysis_data)
 
         return AnalysisResponse(
-            success=len(detections) > 0,
-            detections=detections,
+            success=success,
+            detections=[detection] if detection else [],
             recycling_info=recycling_info,
             message=message,
             processing_time_ms=round(processing_time, 2),

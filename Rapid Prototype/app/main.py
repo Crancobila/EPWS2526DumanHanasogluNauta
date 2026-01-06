@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from app.config import settings
-from app.ml_service import ml_service
+from app.color_analysis_service import color_service  # ✅ Korrekt!
 from app.database import db_service
 from app.routes import analysis, health
 
@@ -23,9 +23,8 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starte Bottle Recycling API...")
 
-    # ML Model laden
-    logger.info("Lade ML-Modell...")
-    ml_service.load_model()
+    # Color Analysis Service ist sofort bereit (kein Model laden nötig)
+    logger.info("Color Analysis Service bereit")
 
     # Datenbank verbinden
     logger.info("Verbinde mit MongoDB...")
@@ -47,8 +46,8 @@ async def lifespan(app: FastAPI):
 # FastAPI App initialisieren
 app = FastAPI(
     title="Bottle Recycling API",
-    description="Backend API für Flaschenidentifikation und Recycling-Anweisungen",
-    version="1.0.0",
+    description="Backend API für Flaschenidentifikation und Recycling-Anweisungen (Color-Based)",
+    version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc"

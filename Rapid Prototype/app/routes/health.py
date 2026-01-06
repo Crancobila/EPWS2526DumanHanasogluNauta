@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.models import HealthResponse
-from app.ml_service import ml_service
+from app.color_analysis_service import color_service
 from app.database import db_service
 
 router = APIRouter(tags=["Health"])
@@ -15,12 +15,12 @@ async def health_check():
         HealthResponse mit Status-Informationen
     """
     db_connected = await db_service.is_connected()
-    ml_loaded = ml_service.is_loaded()
+    color_ready = color_service.is_ready()
 
     return HealthResponse(
-        status="healthy" if (ml_loaded and db_connected) else "degraded",
-        version="1.0.0",
-        ml_model_loaded=ml_loaded,
+        status="healthy" if (color_ready and db_connected) else "degraded",
+        version="2.0.0",
+        analysis_ready=color_ready,
         database_connected=db_connected
     )
 
@@ -31,8 +31,9 @@ async def root():
     Root Endpoint
     """
     return {
-        "message": "Bottle Recycling API",
-        "version": "1.0.0",
+        "message": "Bottle Recycling API (Color-Based Analysis)",
+        "version": "2.0.0",
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
+        "analysis_method": "color-based (no ML model required)"
     }
