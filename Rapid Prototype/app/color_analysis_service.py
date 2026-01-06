@@ -186,21 +186,8 @@ class ColorAnalysisService:
             logger.info(f"→ Klassifiziert als: Glasflasche_Weiss (Konfidenz: {confidence:.2%})")
             return 'Glasflasche_Weiss', confidence
 
-        # 4. PET-Flasche (transparent, sehr hell)
-        # Sehr hohe Helligkeit, sehr niedrige Sättigung
-        if brightness > 180 and saturation < 25:  # Gesenkt
-            confidence = min(1.0, (brightness / 255) * 0.6 + 0.3)  # Höhere Base
-            logger.info(f"→ Klassifiziert als: PET_Flasche (Konfidenz: {confidence:.2%})")
-            return 'PET_Flasche', confidence
 
-        # 5. Aluminium-Dose
-        # Metallic: hohe Helligkeit, niedrige Sättigung, hohe Varianz (glänzend)
-        if brightness > 130 and saturation < 35 and variance > 25:  # Gesenkt
-            confidence = min(1.0, (variance / 100) * 0.4 + 0.5)  # Höhere Base
-            logger.info(f"→ Klassifiziert als: Aluminium_Dose (Konfidenz: {confidence:.2%})")
-            return 'Aluminium_Dose', confidence
-
-        # 6. Mehrweg-Glas (ähnlich wie Weißglas, aber etwas dunkler)
+        # 4. Mehrweg-Glas (ähnlich wie Weißglas, aber etwas dunkler)
         if saturation < 25 and 60 < brightness < 150:  # Gesenkt
             confidence = 0.60  # Erhöht
             logger.info(f"→ Klassifiziert als: Mehrweg_Glas (Konfidenz: {confidence:.2%})")
