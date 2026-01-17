@@ -25,7 +25,6 @@ class RecyclingInfo(BaseModel):
     material: str = Field(..., description="Material der Flasche")
     recycling_category: str = Field(..., description="Recycling-Kategorie (Gelber Sack, Glascontainer, etc.)")
     instructions: str = Field(..., description="Detaillierte Recycling-Anleitung")
-    pfand: Optional[float] = Field(None, description="Pfandbetrag in Euro")
     environmental_impact: Optional[str] = Field(None, description="Umweltauswirkungen")
 
     model_config = ConfigDict(
@@ -34,7 +33,7 @@ class RecyclingInfo(BaseModel):
                 "material": "PET (Polyethylenterephthalat)",
                 "recycling_category": "Gelber Sack / Gelbe Tonne",
                 "instructions": "Deckel abschrauben, Flasche zusammendrücken und in den Gelben Sack werfen.",
-                "pfand": 0.25,
+
                 "environmental_impact": "PET-Flaschen sind gut recyclebar und sollten im Kreislauf bleiben."
             }
         }

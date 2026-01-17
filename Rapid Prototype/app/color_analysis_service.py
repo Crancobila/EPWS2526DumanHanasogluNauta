@@ -78,7 +78,9 @@ class ColorAnalysisService:
 
     def analyze_dominant_color(self, roi: np.ndarray) -> Dict:
         """
-        Analysiert die dominante Farbe in der ROI
+        Analysiert die dominante Farbe in der ROI mit Hintergrund-Filterung
+
+        NEU: Filtert braune/beige Hintergrund-Pixel (Fliesen, Holz, Hand) automatisch raus
 
         Args:
             roi: Region of Interest als NumPy Array (BGR)
@@ -94,9 +96,51 @@ class ColorAnalysisService:
         roi_rgb = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
         roi_hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
 
-        # Berechne durchschnittliche Werte
-        avg_rgb = np.mean(roi_rgb, axis=(0, 1))
-        avg_hsv = np.mean(roi_hsv, axis=(0, 1))
+        # === NEU: HINTERGRUND-FILTERUNG ===
+        # Filtere braune/beige/hautfarbene Pixel raus (Fliesen, Holz, Hand, Tisch)
+
+        hue_channel = roi_hsv[:, :, 0]
+        sat_channel = roi_hsv[:, :, 1]
+        val_channel = roi_hsv[:, :, 2]
+
+        # Erstelle Maske für "Vordergrund" (Flasche) - NICHT Hintergrund
+        # Hintergrund = braun/beige: Hue 10-35°, mittlere Sättigung 40-140, mittlere Helligkeit 70-170
+        background_mask = (
+                (hue_channel >= 10) & (hue_channel <= 35) &  # Braun/Beige/Orange Hue
+                (sat_channel >= 40) & (sat_channel <= 140) &  # Mittlere Sättigung
+                (val_channel >= 70) & (val_channel <= 170)  # Mittlere Helligkeit
+        )
+
+        # Invertiere: Wir wollen NICHT-Hintergrund (= Flasche)
+        foreground_mask = ~background_mask
+
+        # Sicherheit: Wenn zu viele Pixel gefiltert wurden (>85%), verwende alle
+        foreground_pixels = np.sum(foreground_mask)
+        total_pixels = foreground_mask.size
+        foreground_ratio = foreground_pixels / total_pixels
+
+        if foreground_ratio < 0.15:
+            logger.warning(f"Zu viele Pixel gefiltert ({(1 - foreground_ratio) * 100:.1f}%) - verwende alle Pixel")
+            foreground_mask = np.ones_like(foreground_mask, dtype=bool)
+            filtered = False
+        else:
+            logger.info(
+                f"📐 Hintergrund gefiltert: {total_pixels - foreground_pixels} von {total_pixels} Pixeln ({(1 - foreground_ratio) * 100:.1f}%)")
+            filtered = True
+
+        # Wende Maske an - nur Vordergrund-Pixel verwenden
+        masked_rgb = roi_rgb[foreground_mask]
+        masked_hsv = roi_hsv[foreground_mask]
+
+        if len(masked_rgb) == 0:
+            logger.warning("Keine Pixel nach Filterung übrig - verwende alle")
+            masked_rgb = roi_rgb.reshape(-1, 3)
+            masked_hsv = roi_hsv.reshape(-1, 3)
+            filtered = False
+
+        # Berechne durchschnittliche Werte (auf gefilterten Pixeln!)
+        avg_rgb = np.mean(masked_rgb, axis=0)
+        avg_hsv = np.mean(masked_hsv, axis=0)
 
         r, g, b = avg_rgb
         hue, saturation, value = avg_hsv
@@ -105,11 +149,10 @@ class ColorAnalysisService:
         brightness = np.mean(avg_rgb)
 
         # Berechne Standardabweichung (Farbvarianz)
-        std_rgb = np.std(roi_rgb, axis=(0, 1))
-        color_variance = np.mean(std_rgb)
+        color_variance = np.std(masked_rgb)
 
         # Finde dominante Farbe durch K-Means (Top 3 Farben)
-        pixels = roi_rgb.reshape(-1, 3).astype(np.float32)
+        pixels = masked_rgb.astype(np.float32)
 
         # Reduziere auf max 1000 Pixel für Performance
         if len(pixels) > 1000:
@@ -135,71 +178,59 @@ class ColorAnalysisService:
                 'r': float(dominant_color[0]),
                 'g': float(dominant_color[1]),
                 'b': float(dominant_color[2])
-            }
+            },
+            'background_filtered': filtered,
+            'foreground_pixels': int(foreground_pixels)
         }
 
-        logger.info(f"🎨 Farbanalyse:")
+        logger.info(f"🎨 Farbanalyse{' (mit Hintergrund-Filterung)' if filtered else ''}:")
         logger.info(f"   RGB: ({r:.1f}, {g:.1f}, {b:.1f})")
         logger.info(f"   HSV: H={hue:.1f}°, S={saturation:.1f}%, V={value:.1f}%")
         logger.info(f"   Helligkeit: {brightness:.1f}, Varianz: {color_variance:.1f}")
+        if filtered:
+            logger.info(f"   ✅ {foreground_pixels} Vordergrund-Pixel verwendet ({foreground_ratio * 100:.1f}%)")
 
         return result
 
+
+
     def classify_bottle_type(self, color_data: Dict) -> Tuple[str, float]:
-        """
-        Klassifiziert Flaschentyp basierend auf Farbdaten
-
-        Args:
-            color_data: Dictionary mit Farbanalyse-Daten
-
-        Returns:
-            Tuple von (bottle_type, confidence)
-        """
         hue = color_data['hue']
         saturation = color_data['saturation']
         brightness = color_data['brightness']
         variance = color_data['color_variance']
 
-        # Klassifizierungslogik mit Konfidenz-Berechnung
-
         # 1. Grünes Glas
-        # Hue 28-90° (Grünbereich), mittlere bis hohe Sättigung
-        if 28 <= hue <= 90 and saturation > 20:  # Erweitert für knapp-grüne Farben
-            confidence = min(1.0, (saturation / 100) * 0.6 + 0.4)  # Höhere Base-Konfidenz
+        if 28 <= hue <= 90 and saturation > 20:
+            confidence = min(1.0, (saturation / 100) * 0.6 + 0.4)
             logger.info(f"→ Klassifiziert als: Glasflasche_Gruen (Konfidenz: {confidence:.2%})")
             return 'Glasflasche_Gruen', confidence
 
-        # 2. Braunes Glas
-        # Hue 5-25° (Orange/Braun) ODER Hue > 160° (Rot/Braun), dunkel
-        if ((5 <= hue <= 35) or (hue > 155)) and brightness < 180 and saturation > 12:  # Gesenkt
-            # Höhere Konfidenz bei dunkleren, gesättigteren Farben
-            dark_factor = (180 - brightness) / 180
-            sat_factor = saturation / 100
-            confidence = min(1.0, (dark_factor * 0.4 + sat_factor * 0.4 + 0.3))  # Höhere Base
-            logger.info(f"→ Klassifiziert als: Glasflasche_Braun (Konfidenz: {confidence:.2%})")
-            return 'Glasflasche_Braun', confidence
-
-        # 3. Weißglas / Klarglas
-        # Niedrige Sättigung, mittlere Helligkeit
-        if saturation < 20 and 80 < brightness < 200:  # Gesenkt
-            confidence = min(1.0, (100 - saturation) / 100 * 0.5 + 0.4)  # Höhere Base
+        # 2. Weißglas / Klarglas - JETZT ZUERST! (vor Braun)
+        # Niedrige Sättigung = transparent/farblos
+        if saturation < 35 and 60 < brightness < 230:  # Erweitert
+            confidence = min(1.0, (100 - saturation) / 100 * 0.5 + 0.4)
             logger.info(f"→ Klassifiziert als: Glasflasche_Weiss (Konfidenz: {confidence:.2%})")
             return 'Glasflasche_Weiss', confidence
 
+        # 3. Braunes Glas - NACH Weißglas, STRENGER!
+        # Hue 5-35° (Orange/Braun) ODER Hue > 155° (Rot/Braun), dunkel UND hohe Sättigung
+        if ((5 <= hue <= 35) or (hue > 155)) and brightness < 150 and saturation > 30:  # STRENGER!
+            dark_factor = (150 - brightness) / 150
+            sat_factor = saturation / 100
+            confidence = min(1.0, (dark_factor * 0.4 + sat_factor * 0.4 + 0.3))
+            logger.info(f"→ Klassifiziert als: Glasflasche_Braun (Konfidenz: {confidence:.2%})")
+            return 'Glasflasche_Braun', confidence
 
-        # 4. Mehrweg-Glas (ähnlich wie Weißglas, aber etwas dunkler)
-        if saturation < 25 and 60 < brightness < 150:  # Gesenkt
-            confidence = 0.60  # Erhöht
-            logger.info(f"→ Klassifiziert als: Mehrweg_Glas (Konfidenz: {confidence:.2%})")
-            return 'Mehrweg_Glas', confidence
+        # 4-6. ENTFERNT - PET, Aluminium, Mehrweg nicht mehr klassifizieren
 
-        # Fallback: Entscheide basierend auf Helligkeit und Hue
-        if 28 <= hue <= 90:  # Wenn Hue grünlich ist (ab 28°)
-            logger.info(f"→ Fallback: Glasflasche_Gruen (schwache Farbe, Konfidenz: 0.55)")
+        # Fallback
+        if 28 <= hue <= 90:
+            logger.info(f"→ Fallback: Glasflasche_Gruen (Konfidenz: 0.55)")
             return 'Glasflasche_Gruen', 0.55
-        elif brightness > 160:
-            logger.info(f"→ Fallback: PET_Flasche (hell, Konfidenz: 0.50)")
-            return 'PET_Flasche', 0.50
+        elif brightness > 180:
+            logger.info(f"→ Fallback: Glasflasche_Weiss (hell, Konfidenz: 0.50)")
+            return 'Glasflasche_Weiss', 0.50
         elif brightness < 100:
             logger.info(f"→ Fallback: Glasflasche_Braun (dunkel, Konfidenz: 0.50)")
             return 'Glasflasche_Braun', 0.50

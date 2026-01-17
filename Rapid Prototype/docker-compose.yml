@@ -12,7 +12,7 @@ services:
       - DEBUG=True
       - HOST=0.0.0.0
       - PORT=8000
-      - MIN_CONFIDENCE=0.5
+      - MIN_CONFIDENCE=0.3
       - ROI_ENABLED=True
       - ROI_X_PERCENT=0.38
       - ROI_Y_PERCENT=0.40

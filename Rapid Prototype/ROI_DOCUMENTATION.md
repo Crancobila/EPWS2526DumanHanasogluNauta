@@ -265,7 +265,6 @@ const response = await fetch(
 
 → ROI lohnt sich besonders bei hochauflösenden Bildern (>2MP)
 
----
 
-**Zusammenfassung:**
+Zusammenfassung:
 ROI erlaubt es, nur einen bestimmten Bereich des Bildes zu analysieren. Dies verbessert Genauigkeit und Performance. Die Parameter werden als Prozent-Werte angegeben (0.0-1.0) und können global in Config oder pro Request gesetzt werden.

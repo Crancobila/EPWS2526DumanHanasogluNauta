@@ -90,20 +90,12 @@ class DatabaseService:
             return
 
         sample_data = [
-            {
-                "bottle_type": "PET_Flasche",
-                "material": "PET (Polyethylenterephthalat)",
-                "recycling_category": "Gelber Sack / Gelbe Tonne",
-                "instructions": "Deckel abschrauben, Flasche zusammendrücken und in den Gelben Sack werfen. Pfandflaschen zum Automaten bringen.",
-                "pfand": 0.25,
-                "environmental_impact": "PET-Flaschen sind gut recyclebar. Durch Pfandsystem hohe Rücklaufquote in Deutschland."
-            },
+
             {
                 "bottle_type": "Glasflasche_Gruen",
                 "material": "Grünes Glas",
                 "recycling_category": "Grüner Glascontainer",
                 "instructions": "Deckel entfernen und in den grünen Glascontainer werfen. Pfandflaschen zum Automaten bringen.",
-                "pfand": 0.08,
                 "environmental_impact": "Glas ist unendlich oft recyclebar ohne Qualitätsverlust."
             },
             {
@@ -111,7 +103,7 @@ class DatabaseService:
                 "material": "Weißes/klares Glas",
                 "recycling_category": "Weißer Glascontainer",
                 "instructions": "Deckel entfernen und in den weißen Glascontainer werfen. Pfandflaschen zum Automaten bringen.",
-                "pfand": 0.08,
+
                 "environmental_impact": "Weißglas ist besonders wertvoll für Recycling und sollte sortenrein entsorgt werden."
             },
             {
@@ -119,7 +111,7 @@ class DatabaseService:
                 "material": "Braunes Glas",
                 "recycling_category": "Brauner Glascontainer",
                 "instructions": "Deckel entfernen und in den braunen Glascontainer werfen. Pfandflaschen zum Automaten bringen.",
-                "pfand": 0.08,
+
                 "environmental_impact": "Braunglas schützt den Inhalt vor Lichteinfluss und ist gut recyclebar."
             },
 
@@ -128,7 +120,7 @@ class DatabaseService:
                 "material": "Mehrweg-Glas",
                 "recycling_category": "Rückgabe im Supermarkt",
                 "instructions": "Flasche zum Pfandautomaten oder zur Rückgabestelle im Supermarkt bringen.",
-                "pfand": 0.15,
+
                 "environmental_impact": "Mehrwegflaschen können bis zu 50 Mal wiederverwendet werden - beste Ökobilanz!"
             }
         ]
