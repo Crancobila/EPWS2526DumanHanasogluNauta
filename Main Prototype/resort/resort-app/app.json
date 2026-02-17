@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "ReSort",
+    "slug": "resort-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ba94d158-7d00-4b77-9942-f9ab67cc3638"
+      }
+    },
+    "android": {
+      "package": "com.resort.resortapp"
+    }
+  }
+}
